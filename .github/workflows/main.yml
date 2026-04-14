@@ -1,0 +1,37 @@
+name: AI Content Empire 2026
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # يعمل تلقائياً كل يوم الساعة 12 ليلاً
+  workflow_dispatch:      # يتيح لك تشغيله يدوياً متى شئت
+
+permissions:
+  contents: write         # إذن حيوي للسماح للماكينة برفع الملفات لمستودعك
+
+jobs:
+  generate-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: جلب الكود من المستودع
+        uses: actions/checkout@v4
+
+      - name: إعداد بيئة بايثون
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: تثبيت المكتبات اللازمة
+        run: pip install requests
+
+      - name: تشغيل مصنع الصفحات الإبداعي
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: python factory.py
+
+      - name: تحديث المستودع بالصفحات الجديدة
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "AI-Factory-Bot"
+          git add .
+          git commit -m "توليد محتوى إبداعي جديد - 2026" || exit 0
+          git push
